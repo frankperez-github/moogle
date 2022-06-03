@@ -7,7 +7,7 @@ public class SearchResult
     public SearchResult(SearchItem[] items, string suggestion="")
     {
         if (items == null) {
-            throw new ArgumentNullException("items");
+            throw new ArgumentNullException("There are no items to search.");
         }
 
         this.items = items;

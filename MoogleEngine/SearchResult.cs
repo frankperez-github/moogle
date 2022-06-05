@@ -9,7 +9,7 @@ public class SearchResult
         if (items == null) {
             throw new ArgumentNullException("There are no items to search.");
         }
-
+        
         this.items = items;
         this.Suggestion = suggestion;
     }

@@ -29,7 +29,10 @@
     private string query = "";
     private SearchResult result = new SearchResult();
 
+
     private void RunQuery() {
+        if(query != String.Empty){
         result = Moogle.Query(query);
+        }
     }
 }

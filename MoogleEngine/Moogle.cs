@@ -2,9 +2,6 @@
 
 public static class Moogle
 {
-    // Load_Texts();
-    // Search method(It search the frequency of each word in a text and in all texts)
-    // SearchResult recieves the query and returns (SearchItem[], query)
 
     public static SearchResult Query(string query) {
 
@@ -18,6 +15,7 @@ public static class Moogle
 
             new SearchItem(queryWords[0], "Lorem ipsum dolor sit amet", 0.9f),
             new SearchItem(queryWords[1], "Lorem ipsum dolor sit amet", 0.9f),
+            new SearchItem(queryWords[2], "Lorem ipsum dolor sit amet", 0.9f),
         };
 
         return new SearchResult(items, query);
@@ -35,41 +33,63 @@ public static class Moogle
         //Content of txts
         for (int i = 0; i < TxtQuant; i++)
         {   
-            string content = File.ReadAllText(filesAddress[i]);
+            string content = File.ReadAllText(filesAddress[i]).ToLower();
             contentMatrix[i] = content;
         }
     } 
 
-    public static string[] SplitSentences(string sentence)
-    {
-        int wordsQuant = 1;
-        for(int i = 0; i < sentence.Length; i++)
+          public static string[] SplitSentences(string sentence)
         {
-            if ((i != sentence.Length - 1 || i != 0) && (sentence[i] == ' ' || sentence[i] == ';' || sentence[i] == '.' || sentence[i] == ','))
-            {
-                //This conditional is implemented to be sure that 
-                //there are not spaces at the beggining or end
-                wordsQuant++;
-            }
-        }
+            sentence = sentence.ToLower();
+            //Queda pendiente quitar espacios al final y al inicio del query
+            string[] words;
+            int wordsQuant = 0;
+            int countWords = 0;
+            int start = 0;
+            int end = 0;
 
-        string[] words = new string[wordsQuant];
-        int wordCount = 0;
-
-        for(int i = 0; i < sentence.Length; i++)
-        {   
-            char[] currentWord = new char[17];
-            currentWord[i] = sentence[i];
-            if (sentence[i] == ' ')
+            //Counting total of words
+            for(int i = 0; i < sentence.Length; i++)
             {
-                words[wordCount] = new string(currentWord); //Convert char[] to string or change method bye;
-                wordCount++;
-                i++;
+                if(sentence[i] == ' ' || i == sentence.Length-1)
+                {
+                    wordsQuant++;
+                }
             }
-            
+            words = new string[wordsQuant];
+
+            //Walking trought the sentence if there is space then
+            //until there, is a word
+            for(int i = 0; i < sentence.Length; i++)
+            {
+                if (sentence[i] == ' ' || sentence[i] == '.' || sentence[i] == ',' || sentence[i] == ';' || i == sentence.Length-1)
+                {   
+                    end = i;
+                    if(i == sentence.Length-1)
+                    {
+                        end = i+1;
+                    }
+                    char[] newWord = new char[end-start];
+                    int tmpcount = 0;
+                    
+                    for(int j = start; j < end; j++)
+                    {
+                        newWord[tmpcount] = sentence[j];
+                        tmpcount++;
+                    }
+
+                    if (countWords == wordsQuant)
+                    {
+                        break;
+                    }
+                    words[countWords] = string.Join("", newWord);
+                    countWords++;
+                    start = i+1;
+                }
+            }  
+
+            return words;
         }
-        return words;
-    }
 }
 
     

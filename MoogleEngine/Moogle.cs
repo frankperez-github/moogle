@@ -7,14 +7,11 @@ public class Moogle
         LoadTexts();
         string[] queryWords = SplitInWords(query);
 
-        SearchItem[] items = new SearchItem[queryWords.Length];
-        for (var i = 0; i < queryWords.Length; i++)
-        {
-            items = new SearchItem[] {
-            new SearchItem(queryWords[i], "Lorem ipsum dolor sit amet", 0.9f)
+        SearchItem[] items = new SearchItem[]{
+            new SearchItem(queryWords[0], "Lorem ipsum dolor sit amet", 0.9f),
+            new SearchItem(queryWords[1], "Lorem ipsum dolor sit amet", 0.9f),
+            new SearchItem(queryWords[2], "Lorem ipsum dolor sit amet", 0.9f)
         };
-        
-        }
 
         return new SearchResult(items, query);
     }
@@ -40,7 +37,6 @@ public class Moogle
     {
         //Normalizing text
         sentence = sentence.ToLower();
-        sentence.Trim();
 
         string[] words;
         int wordsQuant = 0;
@@ -101,6 +97,7 @@ public class Moogle
                     
                     if(!char.IsLetter(sentence[i])) //If next char is a letter next word starts in i+1
                     {
+                        //Cambiar IsLetter por un method para saber si alphanumeric
                         start = i+1;
                     }
                 }

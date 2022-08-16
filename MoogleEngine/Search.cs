@@ -1,13 +1,11 @@
 public class Search
 {
-    private string[] filesAdr = {};
     
-    public Dictionary<string, string[]> LoadTexts()
+    public static Dictionary<string, string[]> LoadTexts()
     {
         // Addresses of txts (GetFiles returns a string[])
         string[] filesAdresses = Directory.GetFiles("../Content/", "*.txt");
-        this.filesAdr = filesAdresses;
-        int TxtQuant = filesAdresses.Length;
+        int TxtQuant = filesAdresses.Length; //Quantity of txts
 
         // Dictionary to storage all content of txts, each text as an array of "words"
         // and as key the file address
@@ -35,7 +33,7 @@ public class Search
     }
 
 
-    public Dictionary<string, int[]> TF()
+    public static Dictionary<string, int[]> TF()
     // This method compute TF of all words in all texts and storage it in a dict.
     {
         // Here I will storage TF for all words
@@ -56,7 +54,7 @@ public class Search
         foreach (var text in TXTsContent)
         {
             // Loading array of words of acual txt
-            string[] actualWords = TXTsContent[this.filesAdr[TXTcounter]];
+            string[] actualWords = TXTsContent[filesAdresses[TXTcounter]];
 
             for (int i = 0; i < actualWords.Length; i++)
             {

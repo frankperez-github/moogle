@@ -38,7 +38,7 @@ public class preSearch
     {
         // Here I will storage TF for all words
         // In a dict that contains all words and their TF value for each text
-        Dictionary<string, double[]> tf = new Dictionary<string, double[]>();
+        Dictionary<string, double[]> TF = new Dictionary<string, double[]>();
 
         // Loading all txts to a dict
         // key: textAdress, value: words in text
@@ -76,16 +76,18 @@ public class preSearch
                 TFs[TXTcounter] = (double)(TFs[TXTcounter]/total);
 
                 TXTcounter++;
-                tf.Add(actualWords[i], TFs);
+                TF.Add(actualWords[i], TFs);
             }
         }
-        return tf;
+        return TF;
     }
         
 
-     public static Dictionary<string, int[]> iDF()
+     public static Dictionary<string, double[]> iDF()
     // This method compute iDF of all words in all texts, very similar to TF     <word, iDF value> pairs
     {
+        Dictionary<string, double[]> iDF = new Dictionary<string, double[]>();
+
         // Loading all txts to a dict
         // key: textAdress, value: words in text
         Dictionary<string, string[] > TXTsContent = LoadTexts();
@@ -107,42 +109,10 @@ public class preSearch
 
 
 
-
+        return iDF;
         
-
-
-
-
-
-
-
-
-
-
-
-
-        // For each text computing iDF to words
-        foreach (var text in TXTsContent)
-        {
-            // Loading array of words of acual txt
-            
-
-            for (int i = 0; i < actualWords.Length; i++)
-            {
-                int iDF = 0;
-                for (int j = 0; i < actualWords.Length; i++)
-                {   
-                    // For each repetition in text, word's TF gets incremented
-                    if(actualWords[j] == actualWords[i] && j!=i)
-                    {
-                        iDF++;
-                    }
-                }
-                TXTcounter++;
-                tf.Add(actualWords[i], iDF);
-            }
-        }
-        return tf;
     }
+
+
     
 }

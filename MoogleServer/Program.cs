@@ -20,6 +20,9 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+//Computing Term Frequency for all words in all texts
+
+
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
 

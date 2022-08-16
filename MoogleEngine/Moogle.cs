@@ -4,7 +4,7 @@ public class Moogle
 {
     public static SearchResult Query(string query) {
 
-        string[] queryWords = Search.SplitInWords(query);
+        string[] queryWords = preSearch.SplitInWords(query);
 
         SearchItem[] items = new SearchItem[queryWords.Length];
         int count = 0;

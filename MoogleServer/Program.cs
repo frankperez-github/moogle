@@ -21,7 +21,7 @@ app.UseStaticFiles();
 app.UseRouting();
 
 //Computing Term Frequency for all words in all texts
-Search.TF();
+preSearch.TF();
 
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");

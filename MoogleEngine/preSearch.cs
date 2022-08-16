@@ -1,6 +1,6 @@
-public class Search
+public class preSearch
 {
-    
+    // Auxiliar methods
     public static Dictionary<string, string[]> LoadTexts()
     {
         // Addresses of txts (GetFiles returns a string[])
@@ -20,8 +20,7 @@ public class Search
         }      
         return TXTcontent;
     } 
-
-    
+ 
     public static string[] SplitInWords(string sentence)
     {
         // Normalizing text
@@ -33,12 +32,13 @@ public class Search
     }
 
 
-    public static Dictionary<string, int[]> TF()
-    // This method compute TF of all words in all texts and storage it in a dict.
+    // Principal Methods
+    public static Dictionary<string, double[]> TF()
+    // This method compute TF of all words in all texts and storage it in a dict  <word, TF values> pairs
     {
         // Here I will storage TF for all words
         // In a dict that contains all words and their TF value for each text
-        Dictionary<string, int[]> tf = new Dictionary<string, int[]>();
+        Dictionary<string, double[]> tf = new Dictionary<string, double[]>();
 
         // Loading all txts to a dict
         // key: textAdress, value: words in text
@@ -55,12 +55,13 @@ public class Search
         {
             // Loading array of words of acual txt
             string[] actualWords = TXTsContent[filesAdresses[TXTcounter]];
+            int total = actualWords.Length;
 
             for (int i = 0; i < actualWords.Length; i++)
             {
                 // This is an array to storage TF values of a word in each text
                 // It is new for each word
-                int[] TFs = new int[filesAdresses.Length];
+                double[] TFs = new double[filesAdresses.Length];
 
                 for (int j = 0; i < actualWords.Length; i++)
                 {   
@@ -70,6 +71,10 @@ public class Search
                         TFs[TXTcounter]++;
                     }
                 }
+                
+                // Term Frequency is word's repetiton / total of words in text
+                TFs[TXTcounter] = (double)(TFs[TXTcounter]/total);
+
                 TXTcounter++;
                 tf.Add(actualWords[i], TFs);
             }
@@ -77,4 +82,67 @@ public class Search
         return tf;
     }
         
+
+     public static Dictionary<string, int[]> iDF()
+    // This method compute iDF of all words in all texts, very similar to TF     <word, iDF value> pairs
+    {
+        // Loading all txts to a dict
+        // key: textAdress, value: words in text
+        Dictionary<string, string[] > TXTsContent = LoadTexts();
+
+        // List of texts' paths
+        string[] filesAdresses = Directory.GetFiles("../Content/", "*.txt");
+
+        int TXTcounter = 0;
+        long words = 0;
+        foreach(var text in TXTsContent)
+        {
+            string[] textWords = TXTsContent[filesAdresses[TXTcounter]];
+            // Counting total of words in data base
+            words += textWords.Length;
+        }
+
+        // Array of all words in data base
+        string[] allWords = new string[words*filesAdresses.Length];
+
+
+
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+        // For each text computing iDF to words
+        foreach (var text in TXTsContent)
+        {
+            // Loading array of words of acual txt
+            
+
+            for (int i = 0; i < actualWords.Length; i++)
+            {
+                int iDF = 0;
+                for (int j = 0; i < actualWords.Length; i++)
+                {   
+                    // For each repetition in text, word's TF gets incremented
+                    if(actualWords[j] == actualWords[i] && j!=i)
+                    {
+                        iDF++;
+                    }
+                }
+                TXTcounter++;
+                tf.Add(actualWords[i], iDF);
+            }
+        }
+        return tf;
+    }
+    
 }

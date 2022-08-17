@@ -20,8 +20,10 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-//Computing Term Frequency for all words in all texts
-preSearch.TF();
+//Computing TF for all words in all texts
+Dictionary<string, double[]> TF = preSearch.TF();
+// Passing TF result to DF, it returns the final TFiDF
+Dictionary<string, double[]> TFiDF = preSearch.DF(TF);
 
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");

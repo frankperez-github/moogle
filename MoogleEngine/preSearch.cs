@@ -11,6 +11,7 @@ public class preSearch
         // and as key the file address
         Dictionary<string, string[]> TXTcontent = new Dictionary<string, string[]>();
         
+        // For all text in database
         for (int i = 0; i < TxtQuant; i++)
         {   
             // Reading each line
@@ -52,38 +53,45 @@ public class preSearch
 
         // For each text computing TF to words
         foreach (var text in TXTsContent)
-        {
+        {   
             // Loading array of words of acual txt
             string[] actualWords = TXTsContent[filesAdresses[TXTcounter]];
-            int total = actualWords.Length;
-
+            
+            // Fulling TF dict
             for (int i = 0; i < actualWords.Length; i++)
-            {
-                // This is an array to storage TF values of a word in each text
-                // It is new for each word
+            {   
+                // TF for actual word in all texts
                 double[] TFs = new double[filesAdresses.Length];
 
-                for (int j = 0; i < actualWords.Length; i++)
-                {   
-                    // For each repetition in text, word's TF gets incremented
-                    if(actualWords[j] == actualWords[i] && j!=i)
-                    {
-                        TFs[TXTcounter]++;
-                    }
+                // If word already exists, just add 1 to TF, else add it to dict
+                if (TF.ContainsKey(actualWords[i].ToLower()))
+                {
+                    TF[actualWords[i]][TXTcounter]++;
                 }
-                
-                // Term Frequency is word's repetiton / total of words in text
-                TFs[TXTcounter] = (double)(TFs[TXTcounter]/total);
-
-                TXTcounter++;
-                TF.Add(actualWords[i], TFs);
+                else
+                {
+                    TF.Add(actualWords[i].ToLower(), TFs);
+                    TF[actualWords[i]][TXTcounter]++;
+                }
             }
+
+            // Total of words in this text
+            double total = actualWords.Length;
+
+            // Dividing by total of words (This is final TF)
+            for (int i = 0; i < actualWords.Length; i++)
+            {
+                // If TF is very close to 0 its taken as 0
+                 TF[actualWords[i]][TXTcounter] /= total;
+            }
+
+            TXTcounter++;
         }
         return TF;
     }
         
 
-     public static Dictionary<string, double[]> iDF()
+     public static Dictionary<string, double[]> DF(Dictionary<string, double[]> TF)
     // This method compute iDF of all words in all texts, very similar to TF     <word, iDF value> pairs
     {
         Dictionary<string, double[]> iDF = new Dictionary<string, double[]>();
@@ -97,15 +105,21 @@ public class preSearch
 
         int TXTcounter = 0;
         long words = 0;
-        foreach(var text in TXTsContent)
-        {
-            string[] textWords = TXTsContent[filesAdresses[TXTcounter]];
-            // Counting total of words in data base
-            words += textWords.Length;
-        }
 
         // Array of all words in data base
         string[] allWords = new string[words*filesAdresses.Length];
+
+        int wordCounter = 0;
+        foreach (var word in TF)
+        {   
+            string[] txtWords = TXTsContent[filesAdresses[TXTcounter]];
+
+            for (int i = 0; i < txtWords.Length; i++)
+            {
+                
+            }
+
+        
 
 
 

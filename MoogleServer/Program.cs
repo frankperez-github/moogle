@@ -23,7 +23,7 @@ app.UseRouting();
 //Computing TF for all words in all texts
 Dictionary<string, double[]> TF = preSearch.TF();
 // Passing TF result to DF, it returns the final TFiDF
-Dictionary<string, double[]> TFiDF = preSearch.DF(TF);
+// Dictionary<string, double> TFiDF = preSearch.iDF(TF);
 
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");

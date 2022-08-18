@@ -44,18 +44,17 @@ public class preSearch
         // Loading all txts to a dict
         // key: textAdress, value: words in text
         Dictionary<string, string[] > TXTsContent = LoadTexts();
+        int totalTXTs = TXTsContent.Count();
 
         // List of texts' paths
         string[] filesAdresses = Directory.GetFiles("../Content/", "*.txt");
 
-        // Calculating TF to each word
-        int TXTcounter = 0;
 
         // For each text computing TF to words
-        foreach (var text in TXTsContent)
-        {   
+        for (int t = 0; t < totalTXTs; t++)
+        {
             // Loading array of words of acual txt
-            string[] actualWords = TXTsContent[filesAdresses[TXTcounter]];
+            string[] actualWords = TXTsContent[filesAdresses[t]];
             
             // Fulling TF dict
             for (int i = 0; i < actualWords.Length; i++)
@@ -66,65 +65,56 @@ public class preSearch
                 // If word already exists, just add 1 to TF, else add it to dict
                 if (TF.ContainsKey(actualWords[i].ToLower()))
                 {
-                    TF[actualWords[i]][TXTcounter]++;
+                    TF[actualWords[i]][t] += (double)(1.00 / (double)actualWords.Length);
                 }
                 else
                 {
                     TF.Add(actualWords[i].ToLower(), TFs);
-                    TF[actualWords[i]][TXTcounter]++;
+                    TF[actualWords[i]][t] += (double)(1.00 / (double)actualWords.Length);
                 }
             }
-
-            // Total of words in this text
-            double total = actualWords.Length;
-
-            // Dividing by total of words (This is final TF)
-            for (int i = 0; i < actualWords.Length; i++)
-            {
-                // If TF is very close to 0 its taken as 0
-                 TF[actualWords[i]][TXTcounter] /= total;
-            }
-
-            TXTcounter++;
-        }
+        }   
         return TF;
     }
         
 
-     public static Dictionary<string, double[]> DF(Dictionary<string, double[]> TF)
-    // This method compute iDF of all words in all texts, very similar to TF     <word, iDF value> pairs
+    public static Dictionary<string, double> iDF(Dictionary<string, double[]> TF)
     {
-        Dictionary<string, double[]> iDF = new Dictionary<string, double[]>();
+        // Dictionary to storage iDF value of each word
+        Dictionary<string, double> iDF = new Dictionary<string, double>();
 
-        // Loading all txts to a dict
-        // key: textAdress, value: words in text
-        Dictionary<string, string[] > TXTsContent = LoadTexts();
+        // For each word in TF dict if it has a TF value then appears in that txt
+        for(int i = 0; i < TF.Count; i++)
+        {
+            // Storing TF values array of each word in TF dictionary
+            double[] tf = TF[TF.ElementAt(i).Key];
 
-        // List of texts' paths
-        string[] filesAdresses = Directory.GetFiles("../Content/", "*.txt");
-
-        int TXTcounter = 0;
-        long words = 0;
-
-        // Array of all words in data base
-        string[] allWords = new string[words*filesAdresses.Length];
-
-        int wordCounter = 0;
-        foreach (var word in TF)
-        {   
-            string[] txtWords = TXTsContent[filesAdresses[TXTcounter]];
-
-            for (int i = 0; i < txtWords.Length; i++)
+            // For each text, if word have a TF value for this txt, add 1 to iDF
+            for (int j = 0; j < tf.Length; j++)
             {
-                
+                if (tf[j] != 0)
+                {
+                    if (iDF.ContainsKey(TF.ElementAt(i).Key))
+                    {
+                        iDF[TF.ElementAt(i).Key]++;
+                    }
+                    else
+                    {
+                        iDF.Add(TF.ElementAt(i).Key, 1);
+                    }
+                }
+                else //If has 0 TF in actual txt create that word in iDF if it doesn't exists
+                {
+                    if (!iDF.ContainsKey(TF.ElementAt(i).Key))
+                    {
+                        iDF.Add(TF.ElementAt(i).Key, 0);
+                    }
+                }
             }
+            // Console.WriteLine(iDF[TF.ElementAt(i).Key]);
+        }
 
-        
-
-
-
-        return iDF;
-        
+        return iDF;   
     }
 
 

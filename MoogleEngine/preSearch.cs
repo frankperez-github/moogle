@@ -125,10 +125,9 @@ public class preSearch
                 {
                     iDF.Add(actualWords[i].ToLower(), (1, t));
                 }
-                prevText++;
             }
         }   
-        
+
         // Little test!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!11111
         Console.WriteLine("Word 'harry' appears "+iDF["harry"].Item1+" times in DB");
 

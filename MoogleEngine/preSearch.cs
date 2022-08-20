@@ -1,5 +1,7 @@
+using System.Diagnostics;
 public class preSearch
 {
+    
     // Auxiliar methods
     public static Dictionary<string, string[]> LoadTexts()
     {
@@ -40,6 +42,9 @@ public class preSearch
         // Here I will storage TF for all words
         // In a dict that contains all words and their TF value for each text
         Dictionary<string, double[]> TF = new Dictionary<string, double[]>();
+        
+        Dictionary<string, double> iDF = new Dictionary<string, double>();
+
 
         // Loading all txts to a dict
         // key: textAdress, value: words in text
@@ -48,7 +53,11 @@ public class preSearch
 
         // List of texts' paths
         string[] filesAdresses = Directory.GetFiles("../Content/", "*.txt");
+        
 
+        Console.WriteLine("TF Started ✅ ");
+        Stopwatch crono = new Stopwatch();
+        crono.Start();
 
         // For each text computing TF to words
         for (int t = 0; t < totalTXTs; t++)
@@ -74,45 +83,81 @@ public class preSearch
                 }
             }
         }   
+        Console.WriteLine("TF Finished in: "+crono.ElapsedMilliseconds/1000+" secs.⌚");
         return TF;
     }
         
 
-    public static Dictionary<string, double> iDF(Dictionary<string, double[]> TF)
+    public static Dictionary<string, (double, double)> iDF()
     {
         // Dictionary to storage iDF value of each word
-        Dictionary<string, double> iDF = new Dictionary<string, double>();
+        Dictionary<string, (double, double)> iDF = new Dictionary<string, (double, double)>();
 
-        // For each word in TF dict if it has a TF value then appears in that txt
-        for(int i = 0; i < TF.Count; i++)
+        // Loading all txts to a dict
+        // key: textAdress, value: words in text
+        Dictionary<string, string[] > TXTsContent = LoadTexts();
+        int totalTXTs = TXTsContent.Count();
+
+        // List of texts' paths
+        string[] filesAdresses = Directory.GetFiles("../Content/", "*.txt");
+        
+        Console.WriteLine("iDF Started ✅ ");
+        Stopwatch crono = new Stopwatch();
+        crono.Start();
+
+        for (int t = 0; t < totalTXTs; t++)
         {
-            // Storing TF values array of each word in TF dictionary
-            double[] tf = TF[TF.ElementAt(i).Key];
+            // Loading array of words of acual txt
+            string[] actualWords = TXTsContent[filesAdresses[t]];
+            
+            int prevText = -1;
 
-            // For each text, if word have a TF value for this txt, add 1 to iDF
-            for (int j = 0; j < tf.Length; j++)
-            {
-                if (tf[j] != 0)
+            // Fulling TF dict
+            for (int i = 0; i < actualWords.Length; i++)
+            {    
+                // If word already exists, just add 1 to iDF if word is founded in a new text, else add it to dict
+                if (iDF.ContainsKey(actualWords[i].ToLower()) && iDF[actualWords[i]].Item2 != t)
                 {
-                    if (iDF.ContainsKey(TF.ElementAt(i).Key))
-                    {
-                        iDF[TF.ElementAt(i).Key]++;
-                    }
-                    else
-                    {
-                        iDF.Add(TF.ElementAt(i).Key, 1);
-                    }
+                    double previDF = iDF[actualWords[i]].Item1;
+                    iDF[actualWords[i]] = (previDF+1, t);
                 }
-                else //If has 0 TF in actual txt create that word in iDF if it doesn't exists
+                if (!iDF.ContainsKey(actualWords[i].ToLower()))
                 {
-                    if (!iDF.ContainsKey(TF.ElementAt(i).Key))
-                    {
-                        iDF.Add(TF.ElementAt(i).Key, 0);
-                    }
+                    iDF.Add(actualWords[i].ToLower(), (1, t));
                 }
+                prevText++;
             }
-            // Console.WriteLine(iDF[TF.ElementAt(i).Key]);
-        }
+        }   
+        
+        // Little test!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!11111
+        Console.WriteLine("Word 'harry' appears "+iDF["harry"].Item1+" times in DB");
+
+
+        // For each word in TF dict if it has a TF value, that means it appears in that txt
+        // for(int i = 0; i < TF.Count(); i++)
+        // {
+            // Storing TF values array of each word in TF dictionary
+            // double[] tf = TF[TF.ElementAt(i).Key];
+            
+            // // For each text, if word have a TF value for this txt, add 1 to iDF
+            // for (int j = 0; j < tf.Length; j++)
+            // {
+            //     if (tf[j] != 0)
+            //     {
+            //         if (iDF.ContainsKey(TF.ElementAt(i).Key.ToLower()))
+            //         {
+            //             iDF[TF.ElementAt(i).Key]++;
+            //         }
+            //         else
+            //         {
+            //             iDF.Add(TF.ElementAt(i).Key.ToLower(), 1);
+            //         }
+            //     }
+            // }
+            // Console.WriteLine(iDF[TF.ElementAt(i).Key]); ///////////////////////////////////////
+        // }
+
+        Console.WriteLine("iDF Finished in: "+crono.ElapsedMilliseconds/1000+" secs.⌚");
 
         return iDF;   
     }

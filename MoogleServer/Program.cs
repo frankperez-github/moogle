@@ -22,8 +22,8 @@ app.UseRouting();
 
 //Computing TF for all words in all texts
 Dictionary<string, double[]> TF = preSearch.TF();
-// Passing TF result to DF, it returns the final TFiDF
-// Dictionary<string, double> TFiDF = preSearch.iDF(TF);
+// Passing TF result to iDF method to calculate iDF of all words in TF dict
+Dictionary<string, (double, double)> iDF = preSearch.iDF();
 
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");

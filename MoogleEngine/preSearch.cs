@@ -27,8 +27,9 @@ public class preSearch
     public static string[] SplitInWords(string sentence)
     {
         // Normalizing text
+        sentence.Trim();
         sentence = sentence.ToLower();
-        char[] separators = { ' ', ',', '.', ';', ':'};
+        char[] separators = { ' ', ',', '.', ';', ':','-','…','—','¿','?','(',')','!','¡','«','»'};
         string[] words = sentence.Split(separators,StringSplitOptions.RemoveEmptyEntries);
         
         return words;
@@ -37,7 +38,7 @@ public class preSearch
 
     // Principal Methods
     public static Dictionary<string, double[]> TF()
-    // This method compute TF of all words in all texts and storage it in a dict  <word, TF values> pairs
+    // This method compute TF of all words in all texts and storage it in a dict  <word, TF values[]> pairs
     {
         // Here I will storage TF for all words
         // In a dict that contains all words and their TF value for each text
@@ -55,7 +56,7 @@ public class preSearch
         string[] filesAdresses = Directory.GetFiles("../Content/", "*.txt");
         
 
-        Console.WriteLine("TF Started ✅ ");
+        // Delay time of TF
         Stopwatch crono = new Stopwatch();
         crono.Start();
 
@@ -71,7 +72,7 @@ public class preSearch
                 // TF for actual word in all texts
                 double[] TFs = new double[filesAdresses.Length];
 
-                // If word already exists, just add 1 to TF, else add it to dict
+                // If word already exists, just add (1 / length of doc.) to TF, else add it to dict
                 if (TF.ContainsKey(actualWords[i].ToLower()))
                 {
                     TF[actualWords[i]][t] += (double)(1.00 / (double)actualWords.Length);
@@ -83,84 +84,95 @@ public class preSearch
                 }
             }
         }   
-        Console.WriteLine("TF Finished in: "+crono.ElapsedMilliseconds/1000+" secs.⌚");
+        Console.WriteLine("TF Finished in: "+(double)crono.ElapsedMilliseconds/1000+" secs.⌚");
+        crono.Stop();
+
         return TF;
     }
         
 
-    public static Dictionary<string, (double, double)> iDF()
+    public static Dictionary<string, double> iDF(Dictionary<string, double[]> TF)
+    // This method compute iDF of all words in database and storage it in a dict  <word, iDF value> pairs
     {
         // Dictionary to storage iDF value of each word
-        Dictionary<string, (double, double)> iDF = new Dictionary<string, (double, double)>();
+        Dictionary<string, double> iDF = new Dictionary<string, double>();
 
         // Loading all txts to a dict
         // key: textAdress, value: words in text
         Dictionary<string, string[] > TXTsContent = LoadTexts();
         int totalTXTs = TXTsContent.Count();
 
-        // List of texts' paths
-        string[] filesAdresses = Directory.GetFiles("../Content/", "*.txt");
-        
-        Console.WriteLine("iDF Started ✅ ");
+        // Delay time of iDF
         Stopwatch crono = new Stopwatch();
         crono.Start();
 
-        for (int t = 0; t < totalTXTs; t++)
-        {
-            // Loading array of words of acual txt
-            string[] actualWords = TXTsContent[filesAdresses[t]];
-            
-            int prevText = -1;
-
-            // Fulling TF dict
-            for (int i = 0; i < actualWords.Length; i++)
-            {    
-                // If word already exists, just add 1 to iDF if word is founded in a new text, else add it to dict
-                if (iDF.ContainsKey(actualWords[i].ToLower()) && iDF[actualWords[i]].Item2 != t)
-                {
-                    double previDF = iDF[actualWords[i]].Item1;
-                    iDF[actualWords[i]] = (previDF+1, t);
-                }
-                if (!iDF.ContainsKey(actualWords[i].ToLower()))
-                {
-                    iDF.Add(actualWords[i].ToLower(), (1, t));
-                }
-            }
-        }   
-
-        // Little test!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!11111
-        Console.WriteLine("Word 'harry' appears "+iDF["harry"].Item1+" times in DB");
-
-
         // For each word in TF dict if it has a TF value, that means it appears in that txt
-        // for(int i = 0; i < TF.Count(); i++)
-        // {
+        foreach(var tf in TF)
+        {
             // Storing TF values array of each word in TF dictionary
-            // double[] tf = TF[TF.ElementAt(i).Key];
+            double[] tfArray = tf.Value;
             
-            // // For each text, if word have a TF value for this txt, add 1 to iDF
-            // for (int j = 0; j < tf.Length; j++)
-            // {
-            //     if (tf[j] != 0)
-            //     {
-            //         if (iDF.ContainsKey(TF.ElementAt(i).Key.ToLower()))
-            //         {
-            //             iDF[TF.ElementAt(i).Key]++;
-            //         }
-            //         else
-            //         {
-            //             iDF.Add(TF.ElementAt(i).Key.ToLower(), 1);
-            //         }
-            //     }
-            // }
-            // Console.WriteLine(iDF[TF.ElementAt(i).Key]); ///////////////////////////////////////
-        // }
+            // For each text, if word have a TF value for this txt, add 1 to iDF
+            for (int j = 0; j < tfArray.Length; j++)
+            {
+                if (tfArray[j] != 0)
+                {
+                    if (iDF.ContainsKey(tf.Key.ToLower()))
+                    {
+                        iDF[tf.Key]++;
+                    }
+                    else
+                    {
+                        iDF.Add(tf.Key.ToLower(), 1);
+                    }
+                }
+            } 
+        }
 
-        Console.WriteLine("iDF Finished in: "+crono.ElapsedMilliseconds/1000+" secs.⌚");
+        foreach(var idf in iDF)
+        {
+            // iDf value is: ( 1 / frequency of a word in data base ) frequency in database is never going to be 0 because is calculated based on TF dictionary of all words
+            // A lower value of iDF represents a very common word in database
+            iDF[idf.Key] = (1 / iDF[idf.Key]);
+        }
+        
+
+        Console.WriteLine("iDF Finished in: "+(double)crono.ElapsedMilliseconds/1000+" secs.⌚");
+        crono.Stop();
 
         return iDF;   
     }
 
 
-    
+    public static Dictionary<string, (double, double)[]> TFiDF(Dictionary<string, double[]> TF, Dictionary<string, double> iDF)
+    // This method will multiply TF and iDF of each word and will return a dict with <word, TFiDF value> pairs
+    {
+        // Dict to storage TFiDF
+        Dictionary<string, (double, double)[]> TFiDF = new Dictionary<string, (double, double)[]>();
+
+        // An empty array of tuples with total of documents as length
+        (double, double)[] tfidf = new (double, double)[TF[TF.ElementAt(0).Key].Length];
+
+        foreach (var word in TF)
+        {
+            // Fulling TDFiDF dict
+            for (int i = 0; i < tfidf.Length; i++)
+            {
+                // TFiDF values of each pair is a tuple: (TF of txt, iDF of txt)
+                tfidf[i].Item1 = TF[word.Key][i];
+                tfidf[i].Item2 = iDF[word.Key];
+
+            }
+            TFiDF.Add(word.Key,tfidf);  
+            Console.WriteLine(""+word.Key+": "+TFiDF[word.Key][0].Item1); 
+        }
+
+        return TFiDF;
+    }
+
+    // public static Dictionary<string, double[]> scoreTXT()
+    // {
+    //     Dictionary<string, double[]> score = new Dictionary<string, double[]>();
+    //     return;
+    // }
 }

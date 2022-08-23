@@ -20,6 +20,7 @@
         <div class="item">
             <p class="title">@item.Title</p>
             <p>... @item.Snippet ...</p>
+            <p>Score: @item.Score</p>
         </div>
     </li>
 }
@@ -28,8 +29,11 @@
 @code {
     private string query = "";
     private SearchResult result = new SearchResult();
+
+    @*Precalculated TF and iDF *@
     Dictionary<string, double[]> TF =  MoogleServer.Program.TF;
     Dictionary<string, double> iDF =  MoogleServer.Program.iDF;
+
     private void RunQuery() {
         if(query != String.Empty){
         result = Moogle.Query(query, TF, iDF);

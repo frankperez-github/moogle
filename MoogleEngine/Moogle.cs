@@ -10,8 +10,11 @@ public class Moogle
         // Texts in Database
         string[] filesAdresses = Directory.GetFiles("../Content/", "*.txt");
 
-        // Array for txt's values for similarity
-        double[] simil = new double[filesAdresses.Length];
+        // Array for txt's values for similarity and its adress
+        (double, string)[] Match = new (double, string)[filesAdresses.Length];
+
+        // Real matches
+        int validMatches = 0;
 
         // Looking best match in all txt
         for(int i = 0; i < filesAdresses.Length; i++)
@@ -32,23 +35,34 @@ public class Moogle
             double angule = Math.Acos(anguleCos); //Radians
 
             // If TF of query in text is 0 discard that txt as match
+            
             if(queryTF == 0)
             {
-                simil[i] = 0;    
+                Match[i].Item1 = 0;   
             }
             else
             {
-                simil[i] = angule;
+                Match[i].Item1 = angule;
+                validMatches++;
             }
+            Match[i].Item2 = filesAdresses[i];
         }
 
-        SearchItem[] items = new SearchItem[queryWords.Length];
+        // Results of search
+        SearchItem[] items = new SearchItem[validMatches];
         int count = 0;
 
-        foreach (var word in queryWords)
+        foreach (var txt in Match)
         {
-            items[count] = new SearchItem(queryWords[count], "Lorem ipsum dolor sit amet", 0.9f);
-            count++;
+            // txt.Item1 es adress of txt, 
+            // txt.Item2 is score of txt
+
+            // Showing all matches except the ones that have 0 as TF for query
+            if(txt.Item1 != 0)
+            {
+                items[count] = new SearchItem(txt.Item2.Split("../Content/")[1], "Lorem ipsum dolor sit amet", txt.Item1);
+                count++;
+            }
         }
             
         return new SearchResult(items, query);

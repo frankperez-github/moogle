@@ -34,6 +34,8 @@ public class Moogle
             double anguleCos = (queryTF + queryiDF) / (Math.Sqrt(2) * TXTvectorLength);
             double angule = Math.Acos(anguleCos); //Radians
 
+            // The lowest angule is best match
+
             // If TF of query in text is 0 discard that txt as match
             
             if(queryTF == 0)
@@ -64,8 +66,12 @@ public class Moogle
                 count++;
             }
         }
+
+        // Sorting items by angule
+        var sortedMatches = from item in items orderby item.Score ascending select item;
+        var results = sortedMatches.ToArray();
             
-        return new SearchResult(items, query);
+        return new SearchResult(results, query);
     }
 
 }

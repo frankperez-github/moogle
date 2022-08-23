@@ -2,6 +2,7 @@ using System.Diagnostics;
 public class preSearch
 {
     
+
     // Auxiliar methods
     public static Dictionary<string, string[]> LoadTexts()
     {
@@ -143,36 +144,4 @@ public class preSearch
         return iDF;   
     }
 
-
-    public static Dictionary<string, (double, double)[]> TFiDF(Dictionary<string, double[]> TF, Dictionary<string, double> iDF)
-    // This method will multiply TF and iDF of each word and will return a dict with <word, TFiDF value> pairs
-    {
-        // Dict to storage TFiDF
-        Dictionary<string, (double, double)[]> TFiDF = new Dictionary<string, (double, double)[]>();
-
-        // An empty array of tuples with total of documents as length
-        (double, double)[] tfidf = new (double, double)[TF[TF.ElementAt(0).Key].Length];
-
-        foreach (var word in TF)
-        {
-            // Fulling TDFiDF dict
-            for (int i = 0; i < tfidf.Length; i++)
-            {
-                // TFiDF values of each pair is a tuple: (TF of txt, iDF of txt)
-                tfidf[i].Item1 = TF[word.Key][i];
-                tfidf[i].Item2 = iDF[word.Key];
-
-            }
-            TFiDF.Add(word.Key,tfidf);  
-            Console.WriteLine(""+word.Key+": "+TFiDF[word.Key][0].Item1); 
-        }
-
-        return TFiDF;
-    }
-
-    // public static Dictionary<string, double[]> scoreTXT()
-    // {
-    //     Dictionary<string, double[]> score = new Dictionary<string, double[]>();
-    //     return;
-    // }
 }

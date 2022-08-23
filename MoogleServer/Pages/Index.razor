@@ -28,10 +28,11 @@
 @code {
     private string query = "";
     private SearchResult result = new SearchResult();
-    
+    Dictionary<string, double[]> TF =  MoogleServer.Program.TF;
+    Dictionary<string, double> iDF =  MoogleServer.Program.iDF;
     private void RunQuery() {
         if(query != String.Empty){
-        result = Moogle.Query(query);
+        result = Moogle.Query(query, TF, iDF);
         }
     }
 }

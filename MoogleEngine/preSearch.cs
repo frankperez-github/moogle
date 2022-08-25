@@ -1,8 +1,6 @@
 using System.Diagnostics;
 public class preSearch
 {
-    
-
     // Auxiliar methods
     public static Dictionary<string, string[]> LoadTexts()
     {
@@ -30,7 +28,7 @@ public class preSearch
         // Normalizing text
         sentence.Trim();
         sentence = sentence.ToLower();
-        char[] separators = { ' ', ',', '.', ';', ':','-','…','—','¿','?','(',')','!','¡','«','»'};
+        char[] separators = { ' ', ',', '.', ';', ':','-','+','=','_','%','@','#','$','—','¿','?','(',')','!','¡','«','»','[',']','{','}'};
         string[] words = sentence.Split(separators,StringSplitOptions.RemoveEmptyEntries);
         
         return words;
@@ -44,15 +42,12 @@ public class preSearch
         // Here I will storage TF for all words
         // In a dict that contains all words and their TF value for each text
         Dictionary<string, double[]> TF = new Dictionary<string, double[]>();
-        
-        Dictionary<string, double> iDF = new Dictionary<string, double>();
-
 
         // Loading all txts to a dict
         // key: textAdress, value: words in text
         Dictionary<string, string[] > TXTsContent = LoadTexts();
+        // Quantity of texts
         int totalTXTs = TXTsContent.Count();
-
         // List of texts' paths
         string[] filesAdresses = Directory.GetFiles("../Content/", "*.txt");
         
@@ -76,7 +71,7 @@ public class preSearch
                 // If word already exists, just add (1 / length of doc.) to TF, else add it to dict
                 if (TF.ContainsKey(actualWords[i].ToLower()))
                 {
-                    TF[actualWords[i]][t] += (double)(1.00 / (double)actualWords.Length);
+                    TF[actualWords[i]][t] += (double)(1.00 / (double)actualWords.Length); 
                 }
                 else
                 {
@@ -84,14 +79,16 @@ public class preSearch
                     TF[actualWords[i]][t] += (double)(1.00 / (double)actualWords.Length);
                 }
             }
+
         }   
+        
+        
         Console.WriteLine("TF Finished in: "+(double)crono.ElapsedMilliseconds/1000+" secs.⌚");
         crono.Stop();
 
         return TF;
     }
         
-
     public static Dictionary<string, double> iDF(Dictionary<string, double[]> TF)
     // This method compute iDF of all words in database and storage it in a dict  <word, iDF value> pairs
     {

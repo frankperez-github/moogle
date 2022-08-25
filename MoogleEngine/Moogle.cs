@@ -24,36 +24,57 @@ public class Moogle
             foreach(var word in queryWords)
             {
                 // TF of each word in query
-                queryTF += TF[word][i];
+                try
+                {
+                    queryTF += TF[word][i];
+                }
+                catch (KeyNotFoundException)
+                {
+                    queryTF += 0;
+                }
+
                 // iDF of each word in query
-                queryiDF += iDF[word];
+                try
+                {
+                    queryiDF += iDF[word];
+                }
+                catch (KeyNotFoundException)
+                {
+                    queryiDF += 0;
+                }
             }
             
             //Similarity between query and each txt using cosine similarity
+            // The bigger Cos(angule) is best match            
             double TXTvectorLength = Math.Sqrt(Math.Pow(queryTF, 2) + Math.Pow(queryiDF, 2)); //Length of vector of txt
-            double anguleCos = (queryTF + queryiDF) / (Math.Sqrt(2) * TXTvectorLength);
-            double angule = Math.Acos(anguleCos); //Radians
-
-            // The lowest angule is best match
+            double anguleCos = (queryTF / TXTvectorLength);
 
             // If TF of query in text is 0 discard that txt as match
-            
             if(queryTF == 0)
             {
-                Match[i].Item1 = 0;   
+                Match[i].Item1 = 0;   //Score of txt
             }
             else
             {
-                Match[i].Item1 = angule;
+                Match[i].Item1 = anguleCos; //Score of txt
                 validMatches++;
             }
-            Match[i].Item2 = filesAdresses[i];
+
+            Match[i].Item2 = filesAdresses[i]; //Adress of txt
         }
 
-        // Results of search
+        // Results of search are just valid matches
         SearchItem[] items = new SearchItem[validMatches];
         int count = 0;
+        
+        //In case of not results founded
+        if (validMatches == 0)
+        {
+            SearchItem[] emptySearch = {new SearchItem("No matches founded", "...", 0)};
+            return new SearchResult(emptySearch);
+        }
 
+        // Fulling items to be returned
         foreach (var txt in Match)
         {
             // txt.Item1 es adress of txt, 
@@ -64,11 +85,12 @@ public class Moogle
             {
                 items[count] = new SearchItem(txt.Item2.Split("../Content/")[1], "Lorem ipsum dolor sit amet", txt.Item1);
                 count++;
-            }
+            }   
         }
+        
 
-        // Sorting items by angule
-        var sortedMatches = from item in items orderby item.Score ascending select item;
+        // Sorting items by Cos(angule)
+        var sortedMatches = from item in items orderby item.Score descending select item;
         var results = sortedMatches.ToArray();
             
         return new SearchResult(results, query);

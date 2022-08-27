@@ -4,6 +4,14 @@ public class Moogle
 {
     public static SearchResult Query(string query, Dictionary<string, double[]> TF, Dictionary<string, double> iDF) {
 
+        // Looking for search operators
+        (bool, string[]) nonPresent = operators.nonPresent(query);
+        foreach (var word in nonPresent.Item2)
+        {
+            Console.WriteLine(word);
+        }
+
+
         // Proccesing query
         string[] queryWords = preSearch.SplitInWords(query);
 
@@ -13,14 +21,22 @@ public class Moogle
         // Array for txt's values for similarity and its adress
         (double, string)[] Match = new (double, string)[filesAdresses.Length];
 
+        
+
         // Real matches
         int validMatches = 0;
 
         // Looking best match in all txt
         for(int i = 0; i < filesAdresses.Length; i++)
         {
+
+            
+
+
+            // Search of query
             double queryTF = 0;
             double queryiDF = 0;
+
             foreach(var word in queryWords)
             {
                 // TF of each word in query
@@ -41,6 +57,33 @@ public class Moogle
                 catch (KeyNotFoundException)
                 {
                     queryiDF += 0;
+                }
+            }
+
+
+            // OPERATORS ACTIONS
+
+            // ! operator
+            if (nonPresent.Item1)
+            {
+                foreach (var word in nonPresent.Item2)
+                {
+                    try
+                    {
+                        queryTF -= TF[word][i];
+                    }
+                    catch (KeyNotFoundException)
+                    {
+                        // Do nothing because word desn't exists in data base
+                    }
+                    try
+                    {
+                        queryiDF -= iDF[word]; // If word is not in dictionary, its iDF is 0.0001 to be sure that vector's length is not 0
+                    }
+                    catch (KeyNotFoundException)
+                    {
+                        // Do nothing because word desn't exists in data base
+                    }
                 }
             }
             
@@ -88,7 +131,6 @@ public class Moogle
             }   
         }
         
-
         // Sorting items by Cos(angule)
         var sortedMatches = from item in items orderby item.Score descending select item;
         var results = sortedMatches.ToArray();

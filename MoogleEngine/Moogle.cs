@@ -6,10 +6,6 @@ public class Moogle
 
         // Looking for search operators
         (bool, string[]) nonPresent = operators.nonPresent(query);
-        foreach (var word in nonPresent.Item2)
-        {
-            Console.WriteLine(word);
-        }
 
 
         // Proccesing query
@@ -18,10 +14,9 @@ public class Moogle
         // Texts in Database
         string[] filesAdresses = Directory.GetFiles("../Content/", "*.txt");
 
-        // Array for txt's values for similarity and its adress
+        // Array of txt's similarity and adress
         (double, string)[] Match = new (double, string)[filesAdresses.Length];
 
-        
 
         // Real matches
         int validMatches = 0;
@@ -29,14 +24,11 @@ public class Moogle
         // Looking best match in all txt
         for(int i = 0; i < filesAdresses.Length; i++)
         {
-
-            
-
-
             // Search of query
             double queryTF = 0;
             double queryiDF = 0;
 
+            // Creating query vector
             foreach(var word in queryWords)
             {
                 // TF of each word in query
@@ -60,34 +52,7 @@ public class Moogle
                 }
             }
 
-
-            // OPERATORS ACTIONS
-
-            // ! operator
-            if (nonPresent.Item1)
-            {
-                foreach (var word in nonPresent.Item2)
-                {
-                    try
-                    {
-                        queryTF -= TF[word][i];
-                    }
-                    catch (KeyNotFoundException)
-                    {
-                        // Do nothing because word desn't exists in data base
-                    }
-                    try
-                    {
-                        queryiDF -= iDF[word]; // If word is not in dictionary, its iDF is 0.0001 to be sure that vector's length is not 0
-                    }
-                    catch (KeyNotFoundException)
-                    {
-                        // Do nothing because word desn't exists in data base
-                    }
-                }
-            }
-            
-            //Similarity between query and each txt using cosine similarity
+            // Computing SIMILARITY between query and each txt using cosine similarity
             // The bigger Cos(angule) is best match            
             double TXTvectorLength = Math.Sqrt(Math.Pow(queryTF, 2) + Math.Pow(queryiDF, 2)); //Length of vector of txt
             double anguleCos = (queryTF / TXTvectorLength);
@@ -105,6 +70,28 @@ public class Moogle
 
             Match[i].Item2 = filesAdresses[i]; //Adress of txt
         }
+
+
+         // OPERATORS ACTIONS
+        // ! operator
+        for (int i = 0; i < Match.Count(); i++) //Each match will be discard if have a word affected by '!' operator
+        {
+            if (nonPresent.Item1)
+            {
+                foreach (var word in nonPresent.Item2)
+                {
+                    // If database contains word, discard txts it appears as match
+                    if (TF.ContainsKey(word) && TF[word][i] > 0)
+                    {
+                        Match[i].Item1 = 0; //Similarity is 0
+                        validMatches--; //Previously this text was a match, now it's discarded
+                        break; //Text is discarded only one time. If a word of affected ones is founded in text, TXT will be discarded
+                    }
+                }
+            }
+        }
+            
+        
 
         // Results of search are just valid matches
         SearchItem[] items = new SearchItem[validMatches];

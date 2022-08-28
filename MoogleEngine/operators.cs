@@ -4,6 +4,7 @@ namespace MoogleEngine
     {
         public static (bool, string[]) nonPresent(string query)
         {
+            query = query.Trim();
             (bool, string[]) nonPresent = (false, new string[0]);
 
 
@@ -29,17 +30,16 @@ namespace MoogleEngine
             {
                 if(query[c] == oper)
                 {
-                    for(int s = 0; s < query.Length; s++)
+                    for(int s = c; s < query.Length; s++)
                     {
                         if(query[s] == ' ' || s == query.Length-1)
                         {
                             string word = query.Substring(c+1, s-c); // Affected word starts after operators and ends on next white space or end of query 
+                            word = word.Trim();
                             words.Add(word); // Agregate word to the array would be returned
-                            break; // Go out loop and look for new oper and new word
+                            break; // Go out loop and look for new operator and new word
                         }
                     }
-                    // Go back and search another oper
-                    break;
                 }
             }
             return words.ToArray();
